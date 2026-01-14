@@ -50,16 +50,18 @@ android {
         create("bbc") {
             dimension = "source"
             applicationIdSuffix = ".bbc"
-            resValue("string", "app_name", "CTW News (BBC)")
+            resValue("string", "app_name", "News App (BBC)")
             buildConfigField("String", "NEWS_SOURCE_ID", "\"bbc-news\"")
             buildConfigField("String", "NEWS_SOURCE_NAME", "\"BBC News\"")
+            buildConfigField("String", "NEWS_API_KEY", "\"${readNewsApiKey()}\"")
         }
         create("cnn") {
             dimension = "source"
             applicationIdSuffix = ".cnn"
-            resValue("string", "app_name", "CTW News (CNN)")
+            resValue("string", "app_name", "News App (CNN)")
             buildConfigField("String", "NEWS_SOURCE_ID", "\"cnn\"")
             buildConfigField("String", "NEWS_SOURCE_NAME", "\"CNN\"")
+            buildConfigField("String", "NEWS_API_KEY", "\"${readNewsApiKey()}\"")
         }
     }
 
@@ -101,6 +103,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
+    implementation(libs.junit.ktx)
 
     debugImplementation(libs.compose.ui.tooling)
 
