@@ -18,11 +18,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.yourcompany.ctwnews"
+    namespace = "com.example.news_app"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.yourcompany.ctwnews"
+        applicationId = "com.example.news_app"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
@@ -44,7 +44,6 @@ android {
         )
     }
 
-    // Bonus Story 4: flavors for different sources :contentReference[oaicite:25]{index=25}
     flavorDimensions += "source"
     productFlavors {
         create("bbc") {
@@ -55,12 +54,12 @@ android {
             buildConfigField("String", "NEWS_SOURCE_NAME", "\"BBC News\"")
             buildConfigField("String", "NEWS_API_KEY", "\"${readNewsApiKey()}\"")
         }
-        create("cnn") {
+        create("abc") {
             dimension = "source"
-            applicationIdSuffix = ".cnn"
-            resValue("string", "app_name", "News App (CNN)")
-            buildConfigField("String", "NEWS_SOURCE_ID", "\"cnn\"")
-            buildConfigField("String", "NEWS_SOURCE_NAME", "\"CNN\"")
+            applicationIdSuffix = ".abc"
+            resValue("string", "app_name", "News App (ABC)")
+            buildConfigField("String", "NEWS_SOURCE_ID", "\"abc-news\"")
+            buildConfigField("String", "NEWS_SOURCE_NAME", "\"ABC News\"")
             buildConfigField("String", "NEWS_API_KEY", "\"${readNewsApiKey()}\"")
         }
     }
@@ -85,6 +84,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
 }
 
@@ -95,7 +95,7 @@ fun readNewsApiKey(): String {
     }
     val fromLocal = props.getProperty("NEWS_API_KEY")?.trim().orEmpty()
     val fromEnv = System.getenv("NEWS_API_KEY")?.trim().orEmpty()
-    return (fromLocal.ifEmpty { fromEnv }).ifEmpty { error("Missing NEWS_API_KEY") }
+    return (fromLocal.ifEmpty { fromEnv }).ifEmpty { "REPLACE_ME" }
 }
 
 dependencies {
@@ -103,7 +103,8 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
-    implementation(libs.junit.ktx)
+
+    implementation(libs.compose.material.icons.extended)
 
     debugImplementation(libs.compose.ui.tooling)
 
@@ -141,10 +142,25 @@ dependencies {
 
     implementation(libs.biometric)
 
-    // Unit tests (JUnit5 + MockK + Turbine)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    // JUnit Jupiter
     testImplementation(platform(libs.junit5.bom))
     testImplementation(libs.junit5.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
+
+    // Run JUnit4 tests (Robolectric runner) on JUnit Platform
+    testImplementation(libs.junit4)
+    testRuntimeOnly(libs.junit.vintage.engine)
+
+    // Robolectric + Room JVM tests
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.room.testing)
+
+    // Others
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
+    testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.coroutines.test)
 }
