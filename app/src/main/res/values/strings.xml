@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">News App</string>
+    <string name="unexpected_error">Unexpected error</string>
+    <string name="failed_loading_more">Failed to load more</string>
+    <string name="error_rate_limited">You’re making requests too quickly. Please wait and try again.</string>
+    <string name="error_authentication">Authentication error. Please verify the API key configuration.</string>
+    <string name="error_bad_request">Something is misconfigured. Please try again later.</string>
+    <string name="error_source_not_found">This news source is not available.</string>
+    <string name="retry">Retry</string>
+    <string name="please_retry_later">Please try again later.</string>
+    <string name="no_internet_check_your_connectivity">No internet connection. Check your network and retry.</string>
+    <string name="error_fetching_headlines">Could not load headlines</string>
+    <string name="no_headlines_available">No headlines available</string>
+    <string name="article_details_screen_title">Details</string>
+    <string name="article_not_found_message">Article not found</string>
+    <string name="biometric_auth_required">Biometric required</string>
+    <string name="biometric_auth_security_check">Security Check</string>
 </resources>
