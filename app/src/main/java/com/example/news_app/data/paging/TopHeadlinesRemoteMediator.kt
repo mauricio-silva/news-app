@@ -9,7 +9,10 @@ import com.example.news_app.data.local.NewsDatabase
 import com.example.news_app.data.local.entity.ArticleEntity
 import com.example.news_app.data.local.entity.RemoteKeysEntity
 import com.example.news_app.data.mapper.toEntity
+import com.example.news_app.data.remote.NewsApiException
 import com.example.news_app.data.remote.NewsApiService
+import com.example.news_app.data.remote.dto.NewsApiErrorDto
+import kotlinx.serialization.json.Json
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -17,8 +20,18 @@ import java.io.IOException
 class TopHeadlinesRemoteMediator(
     private val sourceId: String,
     private val api: NewsApiService,
-    private val db: NewsDatabase
+    private val db: NewsDatabase,
+    private val json: Json
 ) : RemoteMediator<Int, ArticleEntity>() {
+
+    override suspend fun initialize(): InitializeAction {
+        val cachedCount = db.articleDao().countBySource(sourceId)
+        return if (cachedCount > 0) {
+            InitializeAction.SKIP_INITIAL_REFRESH
+        } else {
+            InitializeAction.LAUNCH_INITIAL_REFRESH
+        }
+    }
 
     override suspend fun load(
         loadType: LoadType,
@@ -40,8 +53,8 @@ class TopHeadlinesRemoteMediator(
             val pageSize = state.config.pageSize.coerceAtMost(100)
             val response = api.topHeadlines(
                 sources = sourceId,
-                pageSize = pageSize,
-                page = page
+                page = page,
+                pageSize = pageSize
             )
 
             val entities = response.articles.mapNotNull { it.toEntity(sourceId) }
@@ -73,7 +86,26 @@ class TopHeadlinesRemoteMediator(
         } catch (e: IOException) {
             return MediatorResult.Error(e)
         } catch (e: HttpException) {
-            return MediatorResult.Error(e)
+            val raw = e.response()?.errorBody()?.string()
+            val parsed = raw?.let {
+                runCatching {
+                    json.decodeFromString(
+                        NewsApiErrorDto.serializer(),
+                        it
+                    )
+                }.getOrNull()
+            }
+
+            val msg = parsed?.message ?: "HTTP ${e.code()} error"
+            val apiCode = parsed?.code
+
+            return MediatorResult.Error(
+                NewsApiException(
+                    httpStatus = e.code(),
+                    apiCode = apiCode,
+                    message = msg
+                )
+            )
         }
     }
 }
