@@ -1,8 +1,8 @@
 package com.example.news_app.di
 
+import com.example.news_app.BuildConfig
 import com.example.news_app.data.remote.NewsApiKeyInterceptor
 import com.example.news_app.data.remote.NewsApiService
-import com.yourcompany.ctwnews.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
